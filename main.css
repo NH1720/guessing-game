@@ -1,1 +1,7 @@
-/* Write your CSS code in this file */
+div {
+    margin: 5px;
+    padding: 5px;
+    background-color: lightgray;
+    text-align: center;
+}
+
