@@ -8,10 +8,10 @@ a user clicks a button or adds a guess to the input field.
 
 */
 
-let newWinningNumber;
+
 
 function generateWinningNumber() {
-   newWinningNumber = Math.ceil(Math.random() * 100);
+  let newWinningNumber = Math.ceil(Math.random() * 100);
    return newWinningNumber;
 }
 
@@ -30,41 +30,6 @@ function shuffle(array) {
     return array;
 }
 
-
-let game = {
-    playersGuess: 1,
-    previousGuesses: [1, 2, 3, 4, 5], 
-    winningNumber: generateWinningNumber(),
-    difference: function (playersGuess, winningNumber) {
-        return Math.abs(playersGuess - winningNumber);
-    },
-    isLower: function(playersGuess, winningNumber) {
-        if (playersGuess < winningNumber) {
-            return true; 
-        } else {
-            return false;
-        }
-    },
-    playersGuessSubmission: function(number) {
-        this.playersGuess = number;
-        if(this.playersGuess > 100) {
-            return "This is not a vaild guess."
-        } else if(this.playersGuess <= 0) {
-            return "This is not a valid guess."
-        } else if(!typeof number === "number") {
-            return "This is not a valid guess."
-        }
-       return checkGuess();
-    },
-    checkGuess: function() {
-        if (this.playersGuess === this.winningNumber) {
-            return "You Win!"
-        } 
-
-    }
-
-};
-
 function newgame() {
 
     return {
@@ -78,22 +43,47 @@ function newgame() {
             return this.playersGuess < this.winningNumber;
         },
         playersGuessSubmission: function(number) {
+            this.playersGuess = parseInt(number);
+            let checkGuessResult = this.checkGuess();
+            let titleElement = document.getElementById("title");
+            titleElement.innerHTML = checkGuessResult;
 
-            this.playersGuess = number;
 
-            
-           return checkGuess();
-        },
+            let guessElements = document.getElementsByClassName("guess");
+            for (let i = 0; i < this.pastGuesses.length; i++) {
+                guessElements[i].innerHTML = this.pastGuesses[i];
+            }
+
+         },
         checkGuess: function() {
-            if (this.playersGuess > 100 || this.playersGuess <= 0 || typeof(number) !== "number") {
-                return "This is not a vaild guess.";
-
-
+            console.log(`playerguess: ${this.playersGuess}`);
+            console.log(typeof(this.playersGuess));
+            if (this.playersGuess > 100 || this.playersGuess <= 0 || typeof(this.playersGuess) != "number") {
+                throw "That is an invalid guess.";
             } else if (this.pastGuesses.includes(this.playersGuess)){
                 return "You have already guessed that number.";
             } else if (this.playersGuess === this.winningNumber) {
                 return "You Win!"
+            } 
+
+            this.pastGuesses.push(this.playersGuess);
+
+            
+            if (this.pastGuesses.length >= 5) {
+                return "You Lose."
             } else {
+
+                let higherOrLower;
+
+                if (this.playersGuess < this.winningNumber) {
+                    higherOrLower = "Guess higher!"
+                } else {
+                    higherOrLower = "Guess lower!"
+                }
+
+                let subtitleElement = document.getElementById("subtitle");
+                subtitleElement.innerHTML = higherOrLower;
+
                 let difference = this.difference();
                 if (difference < 10) {
                     return "You're burning up!";
@@ -107,6 +97,20 @@ function newgame() {
 
             }
                 
+        },
+        provideHint: function() {
+            let hintArray = [this.winningNumber, generateWinningNumber(), generateWinningNumber()];
+            return shuffle(hintArray);
         }
     };
   };
+  let game = newgame();
+
+  let guessButton = document.getElementById("guessButton");
+  guessButton.addEventListener("click",() => {
+    let inputElement = document.getElementById("number");
+    game.playersGuessSubmission(inputElement.value);
+});
+  
+  let resetButton = document.getElementById("resetButton");
+  resetButton.addEventListener("click", () => {game = newgame()});
